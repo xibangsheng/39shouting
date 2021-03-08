@@ -1,36 +1,114 @@
-# This is a basic workflow to help you get started with Actions
 
-name: CI
+名称：日常任务
 
-# Controls when the action will run. 
-on:
-  # Triggers the workflow on push or pull request events but only for the main branch
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+打开：
+  
+  推送：#推力
+    分支：[主要]
+    workflow_dispatch：###西德·斯比特·斯比特
+  时间表：#多特·比特
+    - 克朗：'101-15/2******_行动相关性、辅助性、辅助性、辅助性、辅助性
+    
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+工作：
+  日常任务：
+    如果：github.event.repository.owner.id==github.event.sender.id
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
-jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    恩夫：
+       ENABLE_52POJIE：${{秘密。ENABLE_52POJIE}}
+       ENABLE_BILIBILI：${{秘密。ENABLE_BILIBILI}}
+       ENABLE_IQIYI：${{秘密。ENABLE_IQIYI}}
+       ENABLE_UNICOM：${{秘密。ENABLE_UNICOM}}
+    
+    运行：乌本图最新
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+    策略：
+      矩阵：
+        节点版本： [12]
+        节点注册：[https://registry.npmjs.org']
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+    步骤：
+    
+    #检出
+    - 名称：结帐
+      用途：行动/checkout@v2
+      
+    #设置服务器时区为东八区
+    - 名称：设置时区
+      运行： Sudo 定时区 "亚洲 / 上海"
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+    - 名称：使用节点.js${矩阵。节点版本}}
+      用途：操作/设置node@v1
+      与：
+        节点版本：${矩阵。节点版本}}
+        注册表网址：${矩阵。节点注册}}
+
+    - 名称：获取 npm 缓存目录
+      ID：下午缓存
+      运行：|
+回声"：设置输出名称=迪尔：：下午配置获取缓存）"
+    - 名称：恢复npm缓存
+      用途：行动/cache@v2
+      ID：使用-下午-缓存
+      与：
+        路径：${步骤。npm-缓存。输出。迪尔}}
+        密钥：${跑步者.os}节点-^哈希文件（"**/包锁.json"）}}
+
+    - 名称：恢复npm依赖关系
+      用途：行动/cache@v2
+      ID：使用-下午-取决于
+      与：
+        路径：|
+node_modules
+*/*/node_modules
+        密钥：${跑步者.os}-取决于-{哈希文件（"**/包锁.json"）}}
+
+    - 名称：恢复任务缓存
+      用途：行动/cache@v2
+      ID：使用任务缓存
+      与：
+        路径：|
+/家庭/跑步者/。自动签名机械
+        密钥：${跑步者.os}任务-{哈希文件（"**/包锁.json"）}}
+
+    - 名称：安装依赖项
+      如果：步骤. 使用 - npm - 缓存. 输出. 缓存命中！ ] "真实" ||步骤。
+      运行：下午安装
+       
+    #52 波杰 · 特恩特
+    - 名称：运行 52pojie 日常任务
+      如果：${{env。ENABLE_52POJIE}}
+      恩夫：
+        htVD_2132_auth： ${[secrets.pojie_htVD_2132_auth}}
+        htVD_2132_saltkey： ${secrets.pojie_htVD_2132_saltkey}
+      运行：节点索引.js 52pojie - htVD_2132_auth= htVD_2132_auth} - htVD_2132_saltkey = htVD_2132_saltkey}
+
+    #比利比利 · 特莱希特 · 卡德
+    - 名称：运行比利比利日常任务
+      如果：${{env。ENABLE_BILIBILI}}
+      恩夫：
+        德德使用： $[secrets.bilibili_USERID}}
+        塞斯达： $[secrets.bilibili_SESSDATA}}
+        bili_jct： ${[secrets.bilibili_BILIJCT}}
+        其他信条：${[secrets.bilibili_OTHERCONFIGS}}
+      运行：节点索引.js 比利比利 - 德德乌塞里迪德] - SESSDATA= SESSDATA} - bili_jct=bili_jct= ${其他信条|
+
+    #伊奇伊·
+    - 名称：运行伊奇义日常任务
+      如果：${{env。ENABLE_IQIYI}}
+      恩夫：
+        P00001： ${secrets.iqiyi_P00001}
+        P00PRU： $[secrets.iqiyi_P00PRU}}
+        QC005： $[secrets.iqiyi_QC005}}
+        dfp： ${{secrets.iqiyi_DFP}
+      运行：节点指数.js iqiyi -- -- P00001=[P00001] -- -- P00PRU = P00PRU } -- QC005= QC005 }
+
+    #联通联通联通联通
+    - 名称：运行联通日常任务
+      如果：${{env。ENABLE_UNICOM}}
+      恩夫：
+        用户： ${[secrets.unicom_user}}
+        密码：${secrets.unicom_password}}
+        阿皮德：${[secrets.unicom_appid}}
+      运行：节点索引.js联通-用户=用户}-密码=密码}-appid=appid}----运行
+      
