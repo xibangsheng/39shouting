@@ -1,114 +1,114 @@
+name: daily-task
 
-名称：日常任务
-
-打开：
+on:
   
-  推送：#推力
-    分支：[主要]
-    workflow_dispatch：###西德·斯比特·斯比特
-  时间表：#多特·比特
-    - 克朗：'101-15/2******_行动相关性、辅助性、辅助性、辅助性、辅助性
+  push: # push触发
+    branches: [ main ]
+  workflow_dispatch: # 手动触发
+  schedule: # 计划任务触发
+    - cron: '10 1-15/2 * * *' # cron表达式，Actions时区是UTC时间，所以要往前推8个小时(4-23)
     
 
-工作：
-  日常任务：
-    如果：github.event.repository.owner.id==github.event.sender.id
+jobs:
+  daily-task:
+    if: github.event.repository.owner.id == github.event.sender.id
 
-    恩夫：
-       ENABLE_52POJIE：${{秘密。ENABLE_52POJIE}}
-       ENABLE_BILIBILI：${{秘密。ENABLE_BILIBILI}}
-       ENABLE_IQIYI：${{秘密。ENABLE_IQIYI}}
-       ENABLE_UNICOM：${{秘密。ENABLE_UNICOM}}
+    env:
+      ENABLE_52POJIE: ${{secrets.ENABLE_52POJIE}}
+      ENABLE_BILIBILI: ${{secrets.ENABLE_BILIBILI}}
+      ENABLE_IQIYI: ${{secrets.ENABLE_IQIYI}}
+      ENABLE_UNICOM: ${{secrets.ENABLE_UNICOM}}
     
-    运行：乌本图最新
+    runs-on: ubuntu-latest
 
-    策略：
-      矩阵：
-        节点版本： [12]
-        节点注册：[https://registry.npmjs.org']
+    strategy:
+      matrix:
+        node-version: [12]
+        node-registry: ['https://registry.npmjs.org']
 
-    步骤：
+    steps:
     
-    #检出
-    - 名称：结帐
-      用途：行动/checkout@v2
+    # 检出
+    - name: Checkout
+      uses: actions/checkout@v2
       
-    #设置服务器时区为东八区
-    - 名称：设置时区
-      运行： Sudo 定时区 "亚洲 / 上海"
+    # 设置服务器时区为东八区 
+    - name: Set time zone
+      run: sudo timedatectl set-timezone 'Asia/Shanghai'
 
-    - 名称：使用节点.js${矩阵。节点版本}}
-      用途：操作/设置node@v1
-      与：
-        节点版本：${矩阵。节点版本}}
-        注册表网址：${矩阵。节点注册}}
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+        registry-url: ${{ matrix.node-registry }}
 
-    - 名称：获取 npm 缓存目录
-      ID：下午缓存
-      运行：|
-回声"：设置输出名称=迪尔：：下午配置获取缓存）"
-    - 名称：恢复npm缓存
-      用途：行动/cache@v2
-      ID：使用-下午-缓存
-      与：
-        路径：${步骤。npm-缓存。输出。迪尔}}
-        密钥：${跑步者.os}节点-^哈希文件（"**/包锁.json"）}}
+    - name: Get npm cache directory
+      id: npm-cache
+      run: |
+        echo "::set-output name=dir::$(npm config get cache)"
+    - name: restore npm cache
+      uses: actions/cache@v2
+      id: use-npm-cache
+      with:
+        path: ${{ steps.npm-cache.outputs.dir }}
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 
-    - 名称：恢复npm依赖关系
-      用途：行动/cache@v2
-      ID：使用-下午-取决于
-      与：
-        路径：|
-node_modules
-*/*/node_modules
-        密钥：${跑步者.os}-取决于-{哈希文件（"**/包锁.json"）}}
+    - name: restore npm dependencies
+      uses: actions/cache@v2
+      id: use-npm-depends
+      with:
+        path: |
+          node_modules
+          */*/node_modules
+        key: ${{ runner.os }}-depends-${{ hashFiles('**/package-lock.json') }}
 
-    - 名称：恢复任务缓存
-      用途：行动/cache@v2
-      ID：使用任务缓存
-      与：
-        路径：|
-/家庭/跑步者/。自动签名机械
-        密钥：${跑步者.os}任务-{哈希文件（"**/包锁.json"）}}
+    - name: restore task cache
+      uses: actions/cache@v2
+      id: use-task-cache
+      with:
+        path: |
+          /home/runner/.AutoSignMachine
+        key: ${{ runner.os }}-task-${{ hashFiles('**/package-lock.json') }}
 
-    - 名称：安装依赖项
-      如果：步骤. 使用 - npm - 缓存. 输出. 缓存命中！ ] "真实" ||步骤。
-      运行：下午安装
+    - name: Install dependencies
+      if: steps.use-npm-cache.outputs.cache-hit != 'true' || steps.use-npm-depends.outputs.cache-hit != 'true'
+      run: npm install
        
-    #52 波杰 · 特恩特
-    - 名称：运行 52pojie 日常任务
-      如果：${{env。ENABLE_52POJIE}}
-      恩夫：
-        htVD_2132_auth： ${[secrets.pojie_htVD_2132_auth}}
-        htVD_2132_saltkey： ${secrets.pojie_htVD_2132_saltkey}
-      运行：节点索引.js 52pojie - htVD_2132_auth= htVD_2132_auth} - htVD_2132_saltkey = htVD_2132_saltkey}
+    # 运行 52pojie 签到任务
+    - name: Run 52pojie daily task
+      if: ${{ env.ENABLE_52POJIE }}
+      env:
+        htVD_2132_auth: ${{secrets.pojie_htVD_2132_auth}}
+        htVD_2132_saltkey: ${{secrets.pojie_htVD_2132_saltkey}}
+      run: node index.js 52pojie --htVD_2132_auth=${htVD_2132_auth} --htVD_2132_saltkey=${htVD_2132_saltkey}
 
-    #比利比利 · 特莱希特 · 卡德
-    - 名称：运行比利比利日常任务
-      如果：${{env。ENABLE_BILIBILI}}
-      恩夫：
-        德德使用： $[secrets.bilibili_USERID}}
-        塞斯达： $[secrets.bilibili_SESSDATA}}
-        bili_jct： ${[secrets.bilibili_BILIJCT}}
-        其他信条：${[secrets.bilibili_OTHERCONFIGS}}
-      运行：节点索引.js 比利比利 - 德德乌塞里迪德] - SESSDATA= SESSDATA} - bili_jct=bili_jct= ${其他信条|
+    # 运行 bilibili 签到任务
+    - name: Run bilibili daily task
+      if: ${{ env.ENABLE_BILIBILI }}
+      env:
+        DedeUserID: ${{secrets.bilibili_USERID}}
+        SESSDATA: ${{secrets.bilibili_SESSDATA}}
+        bili_jct: ${{secrets.bilibili_BILIJCT}}
+        otherConfigs: ${{secrets.bilibili_OTHERCONFIGS}}
+      run: node index.js bilibili --DedeUserID=${DedeUserID} --SESSDATA=${SESSDATA} --bili_jct=${bili_jct} ${otherConfigs}
 
-    #伊奇伊·
-    - 名称：运行伊奇义日常任务
-      如果：${{env。ENABLE_IQIYI}}
-      恩夫：
-        P00001： ${secrets.iqiyi_P00001}
-        P00PRU： $[secrets.iqiyi_P00PRU}}
-        QC005： $[secrets.iqiyi_QC005}}
-        dfp： ${{secrets.iqiyi_DFP}
-      运行：节点指数.js iqiyi -- -- P00001=[P00001] -- -- P00PRU = P00PRU } -- QC005= QC005 }
+    # 运行 iqiyi 签到任务
+    - name: Run iqiyi daily task
+      if: ${{ env.ENABLE_IQIYI }}
+      env:
+        P00001: ${{secrets.iqiyi_P00001}}
+        P00PRU: ${{secrets.iqiyi_P00PRU}}
+        QC005: ${{secrets.iqiyi_QC005}}
+        dfp: ${{secrets.iqiyi_DFP}}
+      run: node index.js iqiyi --P00001=${P00001} --P00PRU=${P00PRU} --QC005=${QC005} --dfp=${dfp}
 
-    #联通联通联通联通
-    - 名称：运行联通日常任务
-      如果：${{env。ENABLE_UNICOM}}
-      恩夫：
-        用户： ${[secrets.unicom_user}}
-        密码：${secrets.unicom_password}}
-        阿皮德：${[secrets.unicom_appid}}
-      运行：节点索引.js联通-用户=用户}-密码=密码}-appid=appid}----运行
+    # 运行 unicom 签到任务
+    - name: Run unicom daily task
+      if: ${{ env.ENABLE_UNICOM }}
+      env:
+        user: ${{secrets.unicom_user}}
+        password: ${{secrets.unicom_password}}
+        appid: ${{secrets.unicom_appid}}
+      run: node index.js unicom --user=${user} --password=${password} --appid=${appid} ----tryrun
       
+
